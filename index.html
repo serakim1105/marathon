@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marathon · December 13, 2026</title>
+<style>
+  :root {
+    --paper: #F3F5F2;
+    --card: #FFFFFF;
+    --ink: #14201B;
+    --ink-2: #5A665F;
+    --ink-3: #939C96;
+    --rule: rgba(20,32,27,0.10);
+    --rule-2: rgba(20,32,27,0.18);
+
+    --run: #2F6B4F;
+    --run-bg: #E7F0EA;
+    --strength: #46557F;
+    --strength-bg: #E8EBF3;
+    --long: #1F6E72;
+    --long-bg: #E2EFEF;
+    --key: #7A3B5E;
+    --key-bg: #F2E7ED;
+
+    --p-build: #2F6B4F;
+    --p-peak: #1F6E72;
+    --p-hold: #7C7796;
+    --p-rebuild: #46557F;
+    --p-taper: #939C96;
+
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #101613;
+      --card: #18211D;
+      --ink: #E9EEEA;
+      --ink-2: #9BA69F;
+      --ink-3: #6B756F;
+      --rule: rgba(255,255,255,0.10);
+      --rule-2: rgba(255,255,255,0.20);
+
+      --run: #7FBF9C;  --run-bg: #1D3128;
+      --strength: #9AAAD8; --strength-bg: #212841;
+      --long: #6FC3C7; --long-bg: #17322F;
+      --key: #D897B7; --key-bg: #331F2A;
+
+      --p-build: #7FBF9C; --p-peak: #6FC3C7; --p-hold: #A9A3C4;
+      --p-rebuild: #9AAAD8; --p-taper: #6B756F;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; padding: 0 14px 64px;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  /* ---- Masthead ---- */
+  header { padding: 34px 0 22px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px;
+  }
+  h1 {
+    margin: 0; font-size: 34px; line-height: 1.02; letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+  h1 .thin { font-weight: 300; color: var(--ink-2); display: block; font-size: 26px; letter-spacing: -0.02em; margin-top: 4px; }
+
+  .stats { display: flex; gap: 0; margin-top: 24px; border-top: 1px solid var(--rule-2); }
+  .stat { flex: 1; padding: 14px 0 0; border-right: 1px solid var(--rule); }
+  .stat:last-child { border-right: 0; }
+  .stat b { display: block; font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .stat span { display: block; font-size: 11px; color: var(--ink-3); letter-spacing: .05em; text-transform: uppercase; margin-top: 2px; }
+
+  .bar { height: 3px; background: var(--rule); margin-top: 18px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--run); transition: width .35s ease; }
+
+  /* ---- Phase heading ---- */
+  .phase { margin: 34px 0 12px; display: flex; align-items: baseline; gap: 10px; }
+  .phase h2 {
+    margin: 0; font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
+    font-weight: 700;
+  }
+  .phase .rng { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .phase .line { flex: 1; height: 1px; background: var(--rule-2); }
+  .phase-note { font-size: 13px; color: var(--ink-2); margin: 0 0 14px; }
+
+  /* ---- Week ---- */
+  .week {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 10px; margin-bottom: 10px; overflow: hidden;
+    display: flex;
+  }
+  .spine {
+    width: 46px; flex: none; border-right: 1px solid var(--rule);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 12px 0; gap: 3px;
+  }
+  .spine b { font-family: var(--mono); font-size: 17px; font-weight: 600; letter-spacing: -0.03em; }
+  .spine span { font-family: var(--mono); font-size: 9px; color: var(--ink-3); }
+  .week-body { flex: 1; min-width: 0; }
+  .week-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px; border-bottom: 1px solid var(--rule);
+  }
+  .week-head .date { font-family: var(--mono); font-size: 11px; color: var(--ink-2); letter-spacing: .04em; }
+  .tag {
+    font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+    padding: 2px 6px; border-radius: 3px;
+  }
+  .tag.cut { background: var(--rule); color: var(--ink-2); }
+  .tag.race { background: var(--key-bg); color: var(--key); }
+
+  /* ---- Session rows ---- */
+  .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-bottom: 1px solid var(--rule);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row:hover { background: rgba(127,127,127,0.045); }
+  .row:focus-visible { outline: 2px solid var(--run); outline-offset: -2px; }
+
+  .box {
+    width: 19px; height: 19px; flex: none; border-radius: 5px;
+    border: 1.5px solid var(--rule-2); position: relative; transition: .12s;
+  }
+  .row.on .box { background: var(--run); border-color: var(--run); }
+  .row.on .box::after {
+    content: ""; position: absolute; left: 5.5px; top: 2px;
+    width: 4px; height: 9px; border: solid var(--card);
+    border-width: 0 2px 2px 0; transform: rotate(42deg);
+  }
+  .day {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+    color: var(--ink-3); width: 26px; flex: none; text-transform: uppercase;
+  }
+  .what { flex: 1; min-width: 0; font-size: 14px; }
+  .what .sub { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+  .dur {
+    font-family: var(--mono); font-size: 12.5px; font-weight: 600;
+    padding: 2px 7px; border-radius: 4px; flex: none;
+  }
+  .d-run { color: var(--run); background: var(--run-bg); }
+  .d-str { color: var(--strength); background: var(--strength-bg); }
+  .d-long { color: var(--long); background: var(--long-bg); }
+  .d-key { color: var(--key); background: var(--key-bg); }
+
+  .row.on .what, .row.on .day { opacity: .42; text-decoration: line-through; text-decoration-thickness: 1px; }
+  .row.on .dur { opacity: .42; }
+
+  .row.opt { }
+  .row.opt .box { border-style: dashed; }
+  .row.opt .what::after {
+    content: "optional"; font-family: var(--mono); font-size: 9px;
+    letter-spacing: .08em; color: var(--ink-3); border: 1px dashed var(--rule-2);
+    padding: 1px 4px; border-radius: 3px; margin-left: 7px; white-space: nowrap;
+  }
+
+  /* ---- Reference ---- */
+  .ref { margin-top: 40px; border-top: 1px solid var(--rule-2); padding-top: 22px; }
+  .ref h3 { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; margin: 0 0 18px; }
+  .ref h4 {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    margin: 26px 0 2px; color: var(--ink-3); font-weight: 600;
+  }
+  .ref .lead { margin: 0 0 8px; font-size: 15px; font-weight: 600; color: var(--ink); }
+  .ref ul.ex { list-style: none; padding: 0; margin: 0; }
+  .ref ul.ex li {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid var(--rule);
+    font-size: 14px; color: var(--ink);
+  }
+  .ref ul.ex li:last-child { border-bottom: 0; }
+  .ref ul.ex li b {
+    margin-left: auto; flex: none; font-family: var(--mono);
+    font-size: 12px; font-weight: 600; color: var(--ink-2); white-space: nowrap;
+  }
+  .ref .sw {
+    font-family: var(--mono); font-size: 10px; color: var(--key);
+    background: var(--key-bg); padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+  }
+  .ref em { color: var(--ink); font-style: normal; font-weight: 600; }
+  .ref .fine { font-size: 13px; color: var(--ink-2); margin: 8px 0 0; line-height: 1.55; }
+
+  .reset {
+    margin-top: 26px; width: 100%; padding: 11px;
+    background: none; border: 1px solid var(--rule-2); border-radius: 8px;
+    color: var(--ink-3); font-family: var(--mono); font-size: 11px;
+    letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  }
+  .reset:hover { color: var(--ink); border-color: var(--ink-3); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 400px) {
+    h1 { font-size: 28px; }
+    .what { font-size: 13.5px; }
+    .row.opt .what::after { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Sunday · 13 December 2026</div>
+  <h1>Twenty-two weeks<span class="thin">to the start line</span></h1>
+  <div class="stats">
+    <div class="stat"><b id="s-done">0</b><span>Sessions</span></div>
+    <div class="stat"><b id="s-hrs">0</b><span>Hours banked</span></div>
+    <div class="stat"><b id="s-left">—</b><span>Days out</span></div>
+  </div>
+  <div class="bar"><i id="s-bar"></i></div>
+</header>
+
+<main id="plan"></main>
+
+<section class="ref">
+  <h3>Reference</h3>
+
+  <h4>Weeks 1–8 · Tuesday</h4>
+  <p class="lead">Core &amp; pelvic floor</p>
+  <ul class="ex">
+    <li>Kegels <b>3 × 20</b></li>
+    <li>Weighted back extension <b>3 × 12</b></li>
+    <li>Ab wheel rollout <b>3 × 8–10</b></li>
+    <li>Standing dumbbell woodchop <b>3 × 10 / side</b></li>
+  </ul>
+
+  <h4>Weeks 1–8 · Thursday</h4>
+  <p class="lead">Legs &amp; glutes</p>
+  <ul class="ex">
+    <li>Barbell back squat <b>4 × 8</b></li>
+    <li>Romanian deadlift <b>3 × 10</b></li>
+    <li>Barbell hip thrust <b>3 × 12</b></li>
+    <li>Hip abductor machine <b>3 × 15 / side</b></li>
+    <li>Standing calf raise machine <b>3 × 15–20</b></li>
+  </ul>
+
+  <h4>Weeks 9–22</h4>
+  <p class="lead">Running only</p>
+  <ul class="ex">
+    <li>No strength scheduled. Add it back when you're ready.</li>
+  </ul>
+
+  <h4>Runs</h4>
+  <ul class="ex">
+    <li>Conversational pace. Full sentences, always.</li>
+    <li>Treadmill, air conditioning, fan on you, no incline — July through October.</li>
+    <li>Outdoors from Week 18.</li>
+    <li>Carry fuel on anything over 60 minutes.</li>
+  </ul>
+
+  <h4>The three weeks that carry the plan</h4>
+  <ul class="ex">
+    <li><b>Wk 11</b> Sep 21 · 3 hrs, before symptoms typically start. The insurance policy.</li>
+    <li><b>Wk 19</b> Nov 16 · the final long run, if the phase happens at all.</li>
+    <li><b>Wk 22</b> Dec 13 · race day.</li>
+  </ul>
+
+  <h4>Go / no-go · check in late November</h4>
+  <p class="lead">All four, or the full marathon is off</p>
+  <ul class="ex">
+    <li>Eating and hydrating normally for <b>3 straight weeks</b></li>
+    <li>One long run of <b>2.5 hrs or more</b> within the last 6 weeks</li>
+    <li><b>Fresh OB clearance</b> — late November, not September's</li>
+    <li>No pelvic heaviness, dragging, or leaking on any run</li>
+  </ul>
+  <p class="fine">Decide this in advance, not in the corral. Aerobic fitness decays slowly; nutritional status doesn't. Six weeks of not keeping food down is what disqualifies a marathon, not six weeks of missed miles.</p>
+
+  <h4>Register for the half</h4>
+  <p class="fine">Most events let you drop from the full, some on race morning. If the first trimester takes your training, 13.1 at conversational pace is a reasonable thing to do off a lost block. 26.2 isn't. Pay for the option now so the decision isn't yours to make at 6am.</p>
+
+  <h4>Stop and call your OB</h4>
+  <ul class="ex">
+    <li>Bleeding · fluid leakage · contractions</li>
+    <li>Dizziness · chest pain · headache that won't clear</li>
+    <li>Calf pain or swelling</li>
+    <li>Pelvic heaviness · leaking · pubic bone pain</li>
+  </ul>
+
+  <h4>Before September</h4>
+  <ul class="ex">
+    <li>Book a pelvic floor PT assessment.</li>
+    <li>Check the race's course time limit — a 6:00–7:00 finish is realistic.</li>
+  </ul>
+
+  <button class="reset" id="reset">Clear all progress</button>
+</section>
+
+</div>
+
+<script>
+const KEY = "marathon-2026-12-13";
+const RACE = new Date(2026, 11, 13);
+
+// [week, mondayDate, runMon, runWed, long, flags]
+// flags: c=cutback, o=optional weekdays+long, k=key long run, r=race week
+const W = [
+  [1,"Jul 13",40,40,70,""], [2,"Jul 20",45,45,80,""], [3,"Jul 27",45,50,90,""], [4,"Aug 3",40,40,65,"c"],
+  [5,"Aug 10",45,50,100,""], [6,"Aug 17",50,50,115,""], [7,"Aug 24",50,55,130,""], [8,"Aug 31",40,45,90,"c"],
+  [9,"Sep 7",50,55,145,""], [10,"Sep 14",50,60,160,""], [11,"Sep 21",50,55,180,"k"], [12,"Sep 28",40,45,110,"c"],
+  [13,"Oct 5",45,50,195,"o"], [14,"Oct 12",45,50,210,"o"], [15,"Oct 19",35,40,100,"co"],
+  [16,"Oct 26",40,45,150,"o"], [17,"Nov 2",35,40,100,"co"],
+  [18,"Nov 9",45,50,165,""], [19,"Nov 16",45,50,195,"k"],
+  [20,"Nov 23",45,45,130,"c"], [21,"Nov 30",40,40,90,"c"], [22,"Dec 7",35,25,20,"r"]
+];
+
+const PHASES = [
+  ["Build", 1, 8, "p-build", "Not pregnant yet. Bank the aerobic base while it's cheap — this is your best training window and it will not come back."],
+  ["Peak", 9, 12, "p-peak", "Roughly 2–7 weeks along. The biggest long runs land here, ahead of when symptoms typically start. Running only from Week 9."],
+  ["Hold", 13, 17, "p-hold", "Roughly 5–12 weeks. The likeliest nausea window. Every session here is optional. Skipping the whole block costs you less than forcing one bad week."],
+  ["Rebuild", 18, 19, "p-rebuild", "Roughly 10–14 weeks. Energy may have returned — or may not have yet. Do not count on this phase existing."],
+  ["Taper", 20, 22, "p-taper", "Roughly 12–17 weeks. Nothing left to gain, plenty left to lose."]
+];
+
+let state = {};
+
+function sessions(w) {
+  const [n, date, mon, wed, long, f] = w;
+  const opt = f.includes("o");
+  const strength = n <= 8;         // Strength runs through Sep 6, then comes out.
+  if (f.includes("r")) return [
+    { id:`${n}-0`, day:"Mon", what:"Easy run", min:35, cls:"d-run" },
+    { id:`${n}-2`, day:"Wed", what:"Easy run", min:25, cls:"d-run" },
+    { id:`${n}-4`, day:"Sat", what:"Shakeout", min:20, cls:"d-long" },
+    { id:`${n}-5`, day:"Sun", what:"Marathon", sub:"26.2 miles.", min:390, cls:"d-key" }
+  ];
+  const out = [{ id:`${n}-0`, day:"Mon", what:"Easy run", min:mon, cls:"d-run", opt }];
+  if (strength) out.push({ id:`${n}-1`, day:"Tue", what:"Strength", sub:"Core & pelvic floor", min:35, cls:"d-str" });
+  out.push({ id:`${n}-2`, day:"Wed", what:"Easy run", min:wed, cls:"d-run", opt });
+  if (strength) out.push({ id:`${n}-3`, day:"Thu", what:"Strength", sub:"Legs, glutes & calves", min:50, cls:"d-str" });
+  out.push(
+    { id:`${n}-4`, day:"Sat", what:"Long run",
+      sub: n===11 ? "Protect this one above all others." : (n===14 ? "Or 150 min. Or nothing." : (n===19 ? "Final long run." : null)),
+      min:long, cls: f.includes("k") ? "d-key" : "d-long", opt }
+  );
+  return out;
+}
+
+function fmt(m) { return m >= 60 ? `${Math.floor(m/60)}h ${m%60 ? (m%60)+"m" : ""}`.trim() : `${m}m`; }
+
+function render() {
+  const root = document.getElementById("plan");
+  root.innerHTML = "";
+  PHASES.forEach(([name, a, b, cls, note]) => {
+    const h = document.createElement("div");
+    h.className = "phase";
+    h.innerHTML = `<h2 style="color:var(--${cls})">${name}</h2>
+      <span class="rng">wk ${a}–${b}</span><span class="line"></span>`;
+    root.appendChild(h);
+    const p = document.createElement("p");
+    p.className = "phase-note"; p.textContent = note;
+    root.appendChild(p);
+
+    W.filter(w => w[0] >= a && w[0] <= b).forEach(w => {
+      const [n, date, , , , f] = w;
+      const el = document.createElement("section");
+      el.className = "week";
+      const tag = f.includes("r") ? `<span class="tag race">Race week</span>`
+                : f.includes("c") ? `<span class="tag cut">Cutback</span>` : "";
+      el.innerHTML = `
+        <div class="spine" style="color:var(--${cls})"><b>${n}</b><span>wk</span></div>
+        <div class="week-body">
+          <div class="week-head"><span class="date">${date}</span>${tag}</div>
+          ${sessions(w).map(s => `
+            <div class="row ${state[s.id] ? "on" : ""} ${s.opt ? "opt" : ""}"
+                 data-id="${s.id}" role="checkbox" tabindex="0"
+                 aria-checked="${!!state[s.id]}">
+              <div class="box"></div>
+              <div class="day">${s.day}</div>
+              <div class="what">${s.what}${s.sub ? `<span class="sub">${s.sub}</span>` : ""}</div>
+              <div class="dur ${s.cls}">${fmt(s.min)}</div>
+            </div>`).join("")}
+        </div>`;
+      root.appendChild(el);
+    });
+  });
+
+  root.querySelectorAll(".row").forEach(r => {
+    const go = () => toggle(r.dataset.id);
+    r.addEventListener("click", go);
+    r.addEventListener("keydown", e => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); go(); }
+    });
+  });
+}
+
+const ALL = W.flatMap(sessions);
+
+function stats() {
+  const done = ALL.filter(s => state[s.id]);
+  const mins = done.reduce((t, s) => t + s.min, 0);
+  document.getElementById("s-done").textContent = done.length;
+  document.getElementById("s-hrs").textContent = (mins / 60).toFixed(1);
+  const d = Math.ceil((RACE - new Date()) / 864e5);
+  document.getElementById("s-left").textContent = d > 0 ? d : "0";
+  document.getElementById("s-bar").style.width = (done.length / ALL.length * 100) + "%";
+}
+
+async function save() {
+  try { await window.storage.set(KEY, JSON.stringify(state)); }
+  catch (e) { console.error("Could not save progress:", e); }
+}
+
+function toggle(id) {
+  state[id] = !state[id];
+  const r = document.querySelector(`[data-id="${id}"]`);
+  r.classList.toggle("on", state[id]);
+  r.setAttribute("aria-checked", !!state[id]);
+  stats(); save();
+}
+
+document.getElementById("reset").addEventListener("click", async () => {
+  state = {}; await save(); render(); stats();
+});
+
+(async () => {
+  try {
+    const r = await window.storage.get(KEY);
+    if (r && r.value) state = JSON.parse(r.value);
+  } catch (e) { state = {}; }
+  render(); stats();
+})();
+</script>
+</body>
+</html>
